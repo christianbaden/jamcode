@@ -50,20 +50,22 @@ def gettexts(project,set,user,pw,fromnr):
 	conn=AmcatAPI('http://jamcat.mscc.huji.ac.il',user,pw)
 	n=0
 	for a in conn.list_articles(project,set):
-		n=n+1
 		id=a['id']
 		if id>=fromnr:
-			medium=a['medium']
-			date=a['date']
+			n=n+1
+			res = es.search(index="amcat", doc_type="article", body = {"query": {"match": {"id":id}}})
+			r=res['hits']['hits'][0]['_source']
+			medium=r['medium']
+			date=r['date']
 			title=''
-			if a['headline']:
-				title=a['headline'].lower()
+			if r['headline']:
+				title=r['headline'].lower()
 			subtitle=''
-			if a['byline']:
-				subtitle=a['byline'].lower()
+			if r['byline']:
+				subtitle=r['byline'].lower()
 			text=''
-			if a['text']:
-				text=a['text'].lower()
+			if r['text']:
+				text=r['text'].lower()
 			article=[id,medium,date,title,subtitle,text]
 			texts.append(article)
 			if n==500:

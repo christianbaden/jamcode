@@ -118,7 +118,7 @@ if 's' in options:
 elif 'e' in options:
 	elaboratetd=1
 
-b=5	# bandwidth parameter for the Keywords-in-Context output file, if selected: number of words left and right of the recognized concept
+b=5	#BANDWIDTH PARAMETER FOR KWIC
 	
 texts=gettexts(projectid,setid,user,pw,startfrom)
 
@@ -163,12 +163,14 @@ if kwics==1:
 if simpletd==1 or elaboratetd==1:
 	td=codecs.open('td_'+str(projectid)+'_'+str(setid)+'.txt','wb')
 
+	#SIMPLE TD: JUST IDs IN HEAD AND LEFT
 	if simpletd==1:
 		tdhead='id,'
 		for item in dl:
 			tdhead=tdhead+item+','
 		td.write(tdhead[:-1]+'\n')
 
+	#ELABORATE TD: IDs, MEDIUM, DATE IN LEFT, IDs, CONCEPT IN HEAD
 	if elaboratetd==1:
 		tdhead1=',,,'
 		tdhead2='id,medium,date,'
@@ -176,112 +178,110 @@ if simpletd==1 or elaboratetd==1:
 			tdhead1=tdhead1+dc[item].replace(',',' ')+','
 			tdhead2=tdhead2+item+','
 		td.write(tdhead1[:-1]+'\n'+tdhead2[:-1]+'\n')
-
 progress=0
 for article in texts:
 	progress=progress+1
 	id,medium,date,title,subtitle,text=article
-	if id==startfrom:
-		startfrom=0
-	elif startfrom==0:
-		if dictionary=='INDEX':
-			art_lang=lang_index[str(id)]
-			art_dict=dicts[languages.index(art_lang)]
-		else:
-			art_lang=dictionary
-			art_dict=dicts[0]
-		
-		tfound=[]
-		sfound=[]
-		afound=[]
-		print str(progress*100/len(texts))+'%', id, art_lang,
-		
-		if art_lang=='AR' or art_lang=='HE':
-			twords=towords(title,art_lang)
-			tfound=jcode_ha(twords,art_dict,date,art_lang)
-			print 'found in title:', str(len(tfound))+'/'+str(len(twords))+',',
-			swords=towords(subtitle,art_lang)
-			sfound=jcode_ha(swords,art_dict,date,art_lang)
-			print 'in sub:', str(len(sfound))+'/'+str(len(swords))+',',
-			awords=towords(text,art_lang)
-			afound=jcode_ha(awords,art_dict,date,art_lang)
-			print 'in text:', str(len(afound))+'/'+str(len(awords))+'.'
-		else:
-			twords=towords(title,art_lang)
-			tfound=jcode(twords,art_dict,date)
-			print 'found in title:', str(len(tfound))+'/'+str(len(twords))+',',
-			swords=towords(subtitle,art_lang)
-			sfound=jcode(swords,art_dict,date)
-			print 'in sub:', str(len(sfound))+'/'+str(len(swords))+',',
-			awords=towords(text,art_lang)
-			afound=jcode(awords,art_dict,date)
-			print 'in text:', str(len(afound))+'/'+str(len(awords))+'.'
+	if dictionary=='INDEX':
+		art_lang=lang_index[str(id)]
+		art_dict=dicts[languages.index(art_lang)]
+	else:
+		art_lang=dictionary
+		art_dict=dicts[0]
+	
+	tfound=[]
+	sfound=[]
+	afound=[]
+	print str(progress*100/len(texts))+'%', id, art_lang,
+	
+	if art_lang=='AR' or art_lang=='HE':
+		twords=towords(title,art_lang)
+		tfound=jcode_ha(twords,art_dict,date,art_lang)
+		print 'found in title:', str(len(tfound))+'/'+str(len(twords))+',',
+		swords=towords(subtitle,art_lang)
+		sfound=jcode_ha(swords,art_dict,date,art_lang)
+		print 'in sub:', str(len(sfound))+'/'+str(len(swords))+',',
+		awords=towords(text,art_lang)
+		afound=jcode_ha(awords,art_dict,date,art_lang)
+		print 'in text:', str(len(afound))+'/'+str(len(awords))+'.'
+	else:
+		twords=towords(title,art_lang)
+		tfound=jcode(twords,art_dict,date)
+		print 'found in title:', str(len(tfound))+'/'+str(len(twords))+',',
+		swords=towords(subtitle,art_lang)
+		sfound=jcode(swords,art_dict,date)
+		print 'in sub:', str(len(sfound))+'/'+str(len(swords))+',',
+		awords=towords(text,art_lang)
+		afound=jcode(awords,art_dict,date)
+		print 'in text:', str(len(afound))+'/'+str(len(awords))+'.'
 
-		#EXPORT AS RESULTS LIST
-		for f in range(len(tfound)):
-			rl.write(str(id)+',t'+str(tfound[f][0])+','+tfound[f][1]+'\n')
-		for f in range(len(sfound)):
-			rl.write(str(id)+',s'+str(sfound[f][0])+','+sfound[f][1]+'\n')
-		for f in range(len(afound)):
-			rl.write(str(id)+',a'+str(afound[f][0])+','+afound[f][1]+'\n')
+#	results.append([id,tfound,sfound,afound])
+	
+	#EXPORT AS RESULTS LIST
+	for f in range(len(tfound)):
+		rl.write(str(id)+',t'+str(tfound[f][0])+','+tfound[f][1]+'\n')
+	for f in range(len(sfound)):
+		rl.write(str(id)+',s'+str(sfound[f][0])+','+sfound[f][1]+'\n')
+	for f in range(len(afound)):
+		rl.write(str(id)+',a'+str(afound[f][0])+','+afound[f][1]+'\n')
+	
+	#EXPORT AS ANNOTATED ARTICLES
+	if annotation==1:
+		ea.write(str(id)+'\t')
+		ea.write(e_annotate(twords,tfound,dc)+'\t')
+		ea.write(e_annotate(swords,sfound,dc)+'\n')
+		ea.write(e_annotate(awords,afound,dc)+'\n\n')
+
+	#EXPORT AS REPLACED TEXTS CONTAINING ONLY THE RECOGNIZED CONCEPT IDS
+	if replaced==1:
+		er.write(str(id)+'\t')
+		er.write(e_replace(tfound)+'\t')
+		er.write(e_replace(sfound)+'\t')
+		er.write(e_replace(afound)+'\n')
 		
-		#EXPORT AS ANNOTATED ARTICLES
-		if annotation==1:
-			ea.write(str(id)+'\t')
-			ea.write(e_annotate(twords,tfound,dc)+'\t')
-			ea.write(e_annotate(swords,sfound,dc)+'\n')
-			ea.write(e_annotate(awords,afound,dc)+'\n\n')
+	#EXPORT AS KWIC
+	if kwics==1:
+		instances=[]
+		for item in dl:
+			instances.append([])
 
-		#EXPORT AS REPLACED TEXTS CONTAINING ONLY THE RECOGNIZED CONCEPT IDS
-		if replaced==1:
-			er.write(str(id)+'\t')
-			er.write(e_replace(tfound)+'\t')
-			er.write(e_replace(sfound)+'\t')
-			er.write(e_replace(afound)+'\n')
-			
-		#EXPORT AS KWIC
-		if kwics==1:
-			instances=[]
-			for item in dl:
-				instances.append([])
-
-			for tf in tfound:
-				kwic=e_kwic(tf,b,twords,dc)
-				instances[dl.index(tf[1])].append(kwic)
-			for sf in sfound:
-				kwic=e_kwic(sf,b,swords,dc)
-				instances[dl.index(sf[1])].append(kwic)
-			for af in afound:
-				kwic=e_kwic(af,b,awords,dc)
-				instances[dl.index(af[1])].append(kwic)
-			for i in range(len(instances)):
-				if instances[i]==[]:
-					kw.write(dl[i]+','+dc[dl[i]]+',,,\n')
-				else:
-					for inst in instances[i]:
-						kw.write(inst[0]+','+inst[1]+','+inst[2]+','+inst[3]+','+inst[4]+'\n')
-			
-		#EXPORT AS TD MATRIX
-		if simpletd==1 or elaboratetd==1:
-			vector=[]
-			for item in dl:
-				vector.append(0)
-			for tf in tfound:
-				vector[dl.index(tf[1])]=vector[dl.index(tf[1])]+1
-			for sf in sfound:
-				vector[dl.index(sf[1])]=vector[dl.index(sf[1])]+1
-			for af in afound:
-				vector[dl.index(af[1])]=vector[dl.index(af[1])]+1
-			if simpletd==1:
-				tdline=str(id)+','
-				for v in vector:
-					tdline=tdline+str(v)+','
-				td.write(tdline[:-1]+'\n')
-			if elaboratetd==1:
-				tdline=str(id)+','+medium.replace(',',' ')+','+date+','
-				for v in vector:
-					tdline=tdline+str(v)+','
-				td.write(tdline[:-1]+'\n')
+		for tf in tfound:
+			kwic=e_kwic(tf,b,twords,dc)
+			instances[dl.index(tf[1])].append(kwic)
+		for sf in sfound:
+			kwic=e_kwic(sf,b,swords,dc)
+			instances[dl.index(sf[1])].append(kwic)
+		for af in afound:
+			kwic=e_kwic(af,b,awords,dc)
+			instances[dl.index(af[1])].append(kwic)
+		for i in range(len(instances)):
+			if instances[i]==[]:
+				kw.write(dl[i]+','+dc[dl[i]]+',,,\n')
+			else:
+				for inst in instances[i]:
+					kw.write(inst[0]+','+inst[1]+','+inst[2]+','+inst[3]+','+inst[4]+'\n')
+		
+	#EXPORT AS TD MATRIX
+	if simpletd==1 or elaboratetd==1:
+		vector=[]
+		for item in dl:
+			vector.append(0)
+		for tf in tfound:
+			vector[dl.index(tf[1])]=vector[dl.index(tf[1])]+1
+		for sf in sfound:
+			vector[dl.index(sf[1])]=vector[dl.index(sf[1])]+1
+		for af in afound:
+			vector[dl.index(af[1])]=vector[dl.index(af[1])]+1
+		if simpletd==1:
+			tdline=str(id)+','
+			for v in vector:
+				tdline=tdline+str(v)+','
+			td.write(tdline[:-1]+'\n')
+		if elaboratetd==1:
+			tdline=str(id)+','+medium.replace(',',' ')+','+date+','
+			for v in vector:
+				tdline=tdline+str(v)+','
+			td.write(tdline[:-1]+'\n')
 
 rl.close()
 if annotation==1:
