@@ -118,7 +118,7 @@ if 's' in options:
 elif 'e' in options:
 	elaboratetd=1
 
-b=5	#BANDWIDTH PARAMETER FOR KWIC
+b=5	# bandwidth parameter for the Keywords-in-Context output file, if selected: number of words left and right of the recognized concept
 	
 texts=gettexts(projectid,setid,user,pw,startfrom)
 
@@ -163,14 +163,12 @@ if kwics==1:
 if simpletd==1 or elaboratetd==1:
 	td=codecs.open('td_'+str(projectid)+'_'+str(setid)+'.txt','wb')
 
-	#SIMPLE TD: JUST IDs IN HEAD AND LEFT
 	if simpletd==1:
 		tdhead='id,'
 		for item in dl:
 			tdhead=tdhead+item+','
 		td.write(tdhead[:-1]+'\n')
 
-	#ELABORATE TD: IDs, MEDIUM, DATE IN LEFT, IDs, CONCEPT IN HEAD
 	if elaboratetd==1:
 		tdhead1=',,,'
 		tdhead2='id,medium,date,'
@@ -178,6 +176,7 @@ if simpletd==1 or elaboratetd==1:
 			tdhead1=tdhead1+dc[item].replace(',',' ')+','
 			tdhead2=tdhead2+item+','
 		td.write(tdhead1[:-1]+'\n'+tdhead2[:-1]+'\n')
+
 progress=0
 for article in texts:
 	progress=progress+1
@@ -215,8 +214,6 @@ for article in texts:
 		afound=jcode(awords,art_dict,date)
 		print 'in text:', str(len(afound))+'/'+str(len(awords))+'.'
 
-#	results.append([id,tfound,sfound,afound])
-	
 	#EXPORT AS RESULTS LIST
 	for f in range(len(tfound)):
 		rl.write(str(id)+',t'+str(tfound[f][0])+','+tfound[f][1]+'\n')
