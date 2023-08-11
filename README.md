@@ -5,8 +5,8 @@
 #                                                                         #
 # Please cite as:                                                         #
 #        Baden, Christian (2023). Jamcode: A syntax and Python script for #
-#        syntax-sensitive, context-disambiguated, dictionay-based textual #
-#        analysis. Available Online:                                      #
+#        syntax-sensitive, context-disambiguated, dictionary-based        #
+#        textual analysis. Available Online:                              #
 #        https://github.com/christianbaden/jamcode                        #
 #                                                                         #
 # This script is built for use in conjunction with the AmCAT free & open  #
