@@ -8,8 +8,8 @@
 #                                                                         #
 # Please cite as:                                                         #
 #        Baden, Christian (2023). Jamcode: A syntax and Python script for #
-#        syntax-sensitive, context-disambiguated, dictionay-based textual #
-#        analysis. Available Online:                                      #
+#        syntax-sensitive, context-disambiguated, dictionary-based        #
+#        textual analysis. Available Online:                              #
 #        https://github.com/christianbaden/jamcode                        #
 #                                                                         #
 # This script is built for use in conjunction with the AmCAT free & open  #
@@ -40,12 +40,12 @@
 #        https://osf.io/f5u8h/                                            #
 #        https://github.com/christianbaden/INFOCORE                       #
 #                                                                         #
-# JAmCAT and AmCAT are free software: you can redistribute it and/or      #
+# Jamcode is free and open software: you can redistribute it and/or       #
 # modify it under the terms of the GNU Lesser General Public License as   #
 # published by the Free Software Foundation, either version 3 of the      #
 # License, or (at your option) any later version.                         #
 #                                                                         #
-# Both are distributed in the hope that it will be useful, but WITHOUT    #
+# It is distributed in the hope that it will be useful, but WITHOUT       #
 # ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or   #
 # FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public     #
 # License for more details.                                               #
@@ -58,7 +58,7 @@ def gettexts(index,fromnr):
 	from amcat4py import AmcatClient
 	import html
 	texts=[]
-	conn=AmcatClient('http://132.64.41.140/amcat')
+	conn=AmcatClient('PLEASE ENTER ADDRESS OF AMCAT SERVER HERE')
 	n=0
 	xid='id'
 	try: # On JAmCAT, some batches were uploaded using 'id' as identifiers, others with '_id'.
@@ -163,13 +163,13 @@ def gettexts(index,fromnr):
 # _p(<characters>) specifies character sequences that are NOT permitted as prefixes,
 #                  even if they are generally permitted.
 #
-def importdict(language):
+def importdict(dictionary):
 	import codecs
 	import re
 	import datetime
-	dict_file='DICT_'+language+'.txt'
-	if len(language)>2:
-		language=language[-2:]
+	dict_file='DICT_'+dictionary+'.txt'
+	if len(dictionary)>2:
+		language=dictionary[-2:]
 	di=codecs.open(dict_file,encoding='utf-8')
 	dict=[]
 	n=1
@@ -398,7 +398,7 @@ def towords(text,language):
 # dictionary to the tuples of words obtained from TOWORDS.
 # It returns a list of all found concepts, and their word position within the text.
 # JCODE handles all languages except Arabic ('AR') and Hebrew ('HE').
-def jcode(words,dict,date,adjacent):
+def jcode(words,dict,date,adjacent=0):
 	import codecs
 	import re
 	import copy
@@ -637,7 +637,7 @@ IF IT WAS AN 'AND' BRACKET, THE no# CRITERION IS KEPT AT ZERO AND THE TEST CONTI
 # mypref1 (one-character prefixes), mypref2 (multi-character prefixes), and mysuf (suffixes).
 # mypreq specifies those prefixes allowed for terms within the Boolean query, which
 # is more restrictive than the list of keyword prefixes.
-def jcode_ha(words,dict,date,lang,adjacent):
+def jcode_ha(words,dict,date,lang,adjacent=0):
 	import codecs
 	import re
 	import copy
@@ -904,14 +904,14 @@ IF IT WAS AN 'AND' BRACKET, THE no# CRITERION IS KEPT AT ZERO AND THE TEST CONTI
 # the query '101	Think		think*_n(pad~2)\r\n102	Myself		I'
 # JCODE will return three hits [[0,'102'],[1,'101'],[4,'102']]
 # resulting in the text 'I(Myself) think(Think), therefore I(Myself) am confused.'.
-def e_annotate(words,found,dc):
+def e_annotate(words,found,dict):
 	import re
 	text=''
 	for w in range(len(words)):
 		word=words[w]+' '
 		for hit in found:
 			if hit[0]==w:
-				word=word[:-1]+'('+dc[hit[1]]+') '
+				word=word[:-1]+'('+dict[hit[1]]+') '
 		text=text+word
 	text=text.replace('xxx','').replace(' yydot ','. ').replace('yyy','').replace(' xxpar ','\n').replace(' xxdot ','. ').replace(' xxexc ','! ').replace(' xxque ','? ').replace(' xxcom ',', ').replace(' xxcol ',': ').replace('xxcolpar',': ').replace(' xxsem ','; ').replace(' xxquot ',' " ').replace(' xxapo ',"'").replace(' xxdash ',' - ')
 	text=text.replace('xxx','').replace(' yydot ','. ').replace('yyy','').replace(' xxpar ','\n').replace('yypar','|').replace(' xxdot ','. ').replace(' xxexc ','! ').replace(' xxque ','? ').replace(' xxcom ',', ').replace(' xxcol ',': ').replace(' xxsem ','; ').replace('xxapo',"'").replace(' xxdash ',' - ').replace(' xxlqu ','“')
@@ -945,7 +945,7 @@ def e_replace(found):
 # ['102', 'Myself', '', 'I', 'think,'] for the first hit (note, the comma counts as one word)
 # ['101', 'Think', 'I', 'think', ', therefore'] for the second hit
 # ['102', 'Myself', ', therefore', 'I', 'am confused'] for the third hit.
-def e_kwic(hit,b,words,dc):
+def e_kwic(hit,b,words,dict):
 	kw=words[hit[0]]
 	if hit[0]<b:
 		a=0
@@ -961,5 +961,5 @@ def e_kwic(hit,b,words,dc):
 	after=''
 	for p in range(o-hit[0]):
 		after=after+words[hit[0]+p+1]+' '
-	kwic=[hit[1],dc[hit[1]],before,kw,after]
+	kwic=[hit[1],dict[hit[1]],before,kw,after]
 	return kwic
