@@ -37,12 +37,12 @@
 #        https://osf.io/f5u8h/                                            #
 #        https://github.com/christianbaden/INFOCORE                       #
 #                                                                         #
-# JAmCAT and AmCAT are free software: you can redistribute it and/or      #
+# Jamcode is free and open software: you can redistribute it and/or       #
 # modify it under the terms of the GNU Lesser General Public License as   #
 # published by the Free Software Foundation, either version 3 of the      #
 # License, or (at your option) any later version.                         #
 #                                                                         #
-# Both are distributed in the hope that it will be useful, but WITHOUT    #
+# It is distributed in the hope that it will be useful, but WITHOUT       #
 # ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or   #
 # FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public     #
 # License for more details.                                               #
